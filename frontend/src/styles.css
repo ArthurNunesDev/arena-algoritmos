@@ -24,3 +24,10 @@ h1 { margin: 14px 0 12px; font: 700 clamp(32px,5vw,58px)/1.02 "Space Grotesk",sa
 .barra-coluna { flex:1; height:100%; display:flex; align-items:end; }
 .barra { width:100%; min-height:4px; border-radius:5px 5px 2px 2px; background:linear-gradient(180deg,#8d7cff,#5948d9); transition:height .2s ease; }
 @media (max-width:700px) { .arena{padding:36px 0}.placar{grid-template-columns:repeat(2,1fr)}.novo{width:100%;margin-left:0}.barras{height:280px;padding:12px;gap:3px} }
+
+.acoes { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; }
+.status { color:#737d8d; font-size:13px; }
+.iniciar { border:1px solid #7667ff; border-radius:14px; padding:13px 20px; color:white; background:#7667ff; cursor:pointer; font-weight:800; }
+.iniciar:disabled,.novo:disabled,.algoritmo:disabled { opacity:.55; cursor:not-allowed; }
+.barra.destaque { filter:brightness(1.5); transform:scaleX(.9); box-shadow:0 0 18px rgba(118,103,255,.55); }
+@media (max-width:700px) { .acoes{align-items:stretch; flex-direction:column}.iniciar{width:100%} }
