@@ -10,9 +10,11 @@ permissions:
   pages: write
   id-token: write
 
+# Mantém apenas a publicação mais recente.
+# Se houver um deploy antigo na fila, ele é cancelado.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
