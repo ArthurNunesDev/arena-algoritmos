@@ -33,7 +33,7 @@ export default function App() {
   async function iniciar() {
     if (rodando || algoritmo !== 'bubble') return
 
-    const resposta = await fetch('http://localhost:8000/api/ordenacao/bubble', {
+    const resposta = await fetch('/api/ordenacao/bubble', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ valores }),
