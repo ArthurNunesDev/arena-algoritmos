@@ -19,7 +19,13 @@ class OrdenacaoRequest(BaseModel):
 
 def bubble_sort_passos(valores: list[int]):
     array = valores.copy()
-    passos = [{"tipo": "inicio", "valores": array.copy()}]
+    passos = [{
+        "tipo": "inicio",
+        "valores": array.copy(),
+        "linha": 1,
+        "mensagem": "O array está pronto. Vamos iniciar o Bubble Sort.",
+        "variaveis": {"fim": len(array) - 1, "i": 0},
+    }]
     comparacoes = 0
     movimentos = 0
 
@@ -33,6 +39,9 @@ def bubble_sort_passos(valores: list[int]):
                 "valores": array.copy(),
                 "comparacoes": comparacoes,
                 "movimentos": movimentos,
+                "linha": 3,
+                "mensagem": f"Comparando {array[i]} e {array[i + 1]}.",
+                "variaveis": {"fim": fim, "i": i, "esquerda": array[i], "direita": array[i + 1]},
             })
 
             if array[i] > array[i + 1]:
@@ -45,6 +54,9 @@ def bubble_sort_passos(valores: list[int]):
                     "valores": array.copy(),
                     "comparacoes": comparacoes,
                     "movimentos": movimentos,
+                    "linha": 4,
+                    "mensagem": f"Os elementos foram trocados porque {array[i]} era maior que {array[i + 1]}.",
+                    "variaveis": {"fim": fim, "i": i, "esquerda": array[i], "direita": array[i + 1]},
                 })
 
         if not trocou:
@@ -55,6 +67,9 @@ def bubble_sort_passos(valores: list[int]):
         "valores": array.copy(),
         "comparacoes": comparacoes,
         "movimentos": movimentos,
+        "linha": 7,
+        "mensagem": "Ordenação concluída. O array está em ordem crescente.",
+        "variaveis": {"fim": 0, "i": 0},
     })
     return passos
 
