@@ -43,7 +43,6 @@ export default function App() {
   const [movimentos, setMovimentos] = useState(0)
   const [tempo, setTempo] = useState(0)
   const inicioRef = useRef(null)
-  const pausadoRef = useRef(false)
 
   const maior = useMemo(() => Math.max(...valores), [valores])
 
@@ -71,37 +70,64 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ valores }),
     })
-    const dados = await resposta.json()
 
+    if (!resposta.ok) {
+      setPasso({ tipo: 'erro', mensagem: 'Não foi possível carregar a execução.' })
+      return
+    }
+
+    const dados = await resposta.json()
     setPassos(dados.passos)
-    setIndicePasso(0)
-    setRodando(true)
-    setPausado(false)
-    pausadoRef.current = false
     setFinalizado(false)
+    setPausado(false)
     setComparacoes(0)
     setMovimentos(0)
     setTempo(0)
     inicioRef.current = Date.now()
-
-    for (let i = 0; i < dados.passos.length; i++) {
-      while (pausadoRef.current) await esperar(50)
-      const evento = dados.passos[i]
-      aplicarPasso(evento, i)
-
-      if (evento.tipo === 'comparacao' || evento.tipo === 'troca') {
-        await esperar((evento.tipo === 'troca' ? 520 : 300) / velocidade)
-      }
-    }
-
-    const fim = dados.passos[dados.passos.length - 1]
-    aplicarPasso(fim, dados.passos.length - 1)
-    setRodando(false)
-    setPausado(false)
-    pausadoRef.current = false
-    setFinalizado(true)
-    setTempo(Date.now() - inicioRef.current)
+    aplicarPasso(dados.passos[0], 0)
+    setRodando(true)
   }
+
+  useEffect(() => {
+    if (!rodando || pausado || !passos.length) return undefined
+
+    const atual = passos[indicePasso]
+    const duracao = atual?.tipo === 'troca' ? 520 / velocidade : atual?.tipo === 'comparacao' ? 300 / velocidade : 140 / velocidade
+
+    const timer = window.setTimeout(() => {
+      if (indicePasso >= passos.length - 1) {
+        setRodando(false)
+        setPausado(false)
+        setFinalizado(true)
+        setTempo(Date.now() - inicioRef.current)
+        return
+      }
+      aplicarPasso(passos[indicePasso + 1], indicePasso + 1)
+    }, duracao)
+
+    return () => window.clearTimeout(timer)
+  }, [rodando, pausado, passos, indicePasso, velocidade])
+
+  useEffect(() => {
+    if (!rodando || pausado || !inicioRef.current) return undefined
+    const interval = window.setInterval(() => setTempo(Date.now() - inicioRef.current), 10)
+    return () => window.clearInterval(interval)
+  }, [rodando, pausado])
+
+  useEffect(() => {
+    function tratarTeclado(evento) {
+      if (evento.target instanceof HTMLInputElement || evento.target instanceof HTMLSelectElement) return
+      if (evento.code === 'Space') {
+        evento.preventDefault()
+        if (rodando) setPausado((estado) => !estado)
+        else if (!finalizado) iniciar()
+      }
+      if (evento.key === 'ArrowLeft' && !rodando) passoAnterior()
+      if (evento.key === 'ArrowRight' && !rodando) proximoPasso()
+    }
+    window.addEventListener('keydown', tratarTeclado)
+    return () => window.removeEventListener('keydown', tratarTeclado)
+  })
 
   function novoDesafio() {
     if (rodando) return
@@ -234,6 +260,27 @@ export default function App() {
               </div>
             </div>
 
+            <div className="timeline">
+              <div className="timeline-meta">
+                <span>Timeline</span>
+                <span>{passos.length ? (indicePasso + 1) + ' / ' + passos.length : 'Aguardando execução'}</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max={Math.max(passos.length - 1, 0)}
+                value={passos.length ? indicePasso : 0}
+                onChange={(evento) => {
+                  if (!passos.length || rodando) return
+                  const novoIndice = Number(evento.target.value)
+                  aplicarPasso(passos[novoIndice], novoIndice)
+                  setFinalizado(novoIndice === passos.length - 1)
+                }}
+                disabled={!passos.length || rodando}
+                aria-label="Navegar pelos passos da execução"
+              />
+            </div>
+
             <div className="playback">
               <button onClick={inicioExecucao} disabled={!passos.length || rodando}>⏮</button>
               <button onClick={passoAnterior} disabled={!passos.length || !indicePasso || rodando}>◀</button>
@@ -251,6 +298,11 @@ export default function App() {
                   <option value="4">4x</option>
                 </select>
               </label>
+            </div>
+
+            <div className="shortcut-hint">
+              <span><kbd>Space</kbd> play/pause</span>
+              <span><kbd>←</kbd><kbd>→</kbd> navegar</span>
             </div>
 
             <div className="info-grid">
