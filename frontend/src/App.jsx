@@ -65,8 +65,8 @@ export default function App(){
     const mainRes=await fetch(apiFor(algorithm),{method:'POST',headers:{'Content-Type':'application/json'},body:isSort(algorithm)||isTree(algorithm)||isLogic(algorithm)?JSON.stringify({valores:source}):undefined})
     if(!mainRes.ok||token!==execution.current)return
     const data=await mainRes.json();if(token!==execution.current)return
-    const list=isGraph(algorithm)?data.grafo.passos:data.passos||data.arvore?.passos||[]
-    setSteps(list);setStep(list[0]);setIndex(0);setFinished(false);setPaused(false);setTime(0);setComparisons(0);setMoves(0);setScore(0)
+    const list=data.passos||data.grafo?.passos||data.arvore?.passos||[]
+    if(!list.length){setError('A arena não retornou etapas para este algoritmo.');return}setSteps(list);apply(list[0],0);setFinished(false);setPaused(false);setTime(0);setComparisons(0);setMoves(0);setScore(0)
     if(mode==='race'&&isSort(algorithm)){
       const rr=await fetch('/api/ordenacao/'+rival,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({valores:source})})
       if(rr.ok&&token===execution.current){const rd=await rr.json();setRivalSteps(rd.passos);setRivalIndex(0)}
