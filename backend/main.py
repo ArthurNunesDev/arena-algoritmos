@@ -161,7 +161,7 @@ def tree_steps(kind, values):
     def snapshot():
         return [{"id":n,"valor":v["valor"],"esquerda":v["esquerda"],"direita":v["direita"],"altura":v["altura"]} for n,v in nodes.items()]
     def add(tipo,node=None,linha=3,mensagem="",**variables):
-        steps.append({"tipo":tipo,"node":node,"tree":snapshot(),"linha":linha,"mensagem":mensagem,"variaveis":variables})
+        steps.append({"tipo":tipo,"node":node,"tree":snapshot(),"nodes":variables.pop("nos",None),"linha":linha,"mensagem":mensagem,"variaveis":variables})
     def height(n): return nodes[n]["altura"] if n is not None else 0
     def update(n): nodes[n]["altura"]=1+max(height(nodes[n]["esquerda"]),height(nodes[n]["direita"]))
     def new_node(value):
@@ -202,21 +202,22 @@ def tree_steps(kind, values):
         if balance<-1:
             nodes[current]["direita"]=rotate_right(nodes[current]["direita"]); return rotate_left(current)
         return current
-    for value in source:
-        if kind=="avl": root=avl_insert(root,value)
-        else: root=bst_insert(root,value)
-        add("insercao",root,3,f"Inserindo {value} na árvore.",valor=value,raiz=nodes[root]["valor"])
     if kind=="treeheap":
         heap=[]
         for value in source:
             heap.append(value); i=len(heap)-1
+            add("insercao",i,3,f"Inserindo {value} no Max Heap.",valor=value,nos=heap.copy())
             while i>0:
                 p=(i-1)//2
                 if heap[p]>=heap[i]: break
                 heap[p],heap[i]=heap[i],heap[p]; i=p
-                add("troca",i,4,f"{value} subiu no Max Heap.",valor=value)
-        add("heap",0,4,"Max Heap construído.",tamanho=len(heap),raiz=heap[0] if heap else None)
+                add("troca",i,4,f"{value} subiu no Max Heap.",valor=value,nos=heap.copy())
+        add("heap",0,4,"Max Heap construído.",tamanho=len(heap),raiz=heap[0] if heap else None,nos=heap.copy())
         return {"nodes":heap,"passos":steps}
+    for value in source:
+        if kind=="avl": root=avl_insert(root,value)
+        else: root=bst_insert(root,value)
+        add("insercao",root,3,f"Inserindo {value} na árvore.",valor=value,raiz=nodes[root]["valor"])
     def visit(n):
         if n is None:return
         add("visita",n,4,f"Visitando {nodes[n]['valor']}.",valor=nodes[n]["valor"])
