@@ -144,11 +144,7 @@ export default function App() {
 
   function togglePausa() {
     if (!rodando) return
-    setPausado((estado) => {
-      const novoEstado = !estado
-      pausadoRef.current = novoEstado
-      return novoEstado
-    })
+    setPausado((estado) => !estado)
   }
 
   function passoAnterior() {
@@ -238,11 +234,12 @@ export default function App() {
               <div className="array">
                 {valores.map((valor, index) => {
                   const destacado = passo?.indices?.includes(index)
-                  const concluido = finalizado && index <= indicePasso
+                  const concluido = finalizado
+                  const trocando = passo?.tipo === 'troca' && passo.indices?.includes(index)
                   return (
                     <div className="array-item-wrapper" key={index}>
                       <div
-                        className={'array-item' + (destacado ? ' compare' : '') + (concluido ? ' done' : '')}
+                        className={'array-item' + (destacado ? ' compare' : '') + (concluido ? ' done' : '') + (trocando ? (index === passo.indices[0] ? ' swap-left' : ' swap-right') : '')}
                         style={{ '--item-height': Math.max(46, (valor / maior) * 230) + 'px' }}
                       >
                         <span>{valor}</span>
