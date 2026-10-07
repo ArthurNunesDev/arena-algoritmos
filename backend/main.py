@@ -139,7 +139,7 @@ def graph_steps(kind):
                 nd=dist[u]+w
                 if nd<dist[v]:
                     dist[v]=nd; prev[v]=u
-                    h=abs(7-v) if kind=="astar" else 0
+                    h={0:7,1:6,2:3,3:3,4:3,5:1,6:1,7:0}[v] if kind=="astar" else 0
                     heappush(heap,(nd+h,v))
                     add("relaxamento",v,visited.copy(),linha=4,mensagem=f"Melhor caminho até {v}: custo {nd}.",vizinho=v,custo=nd,g=nd,h=h,f=nd+h)
         target=7
@@ -280,7 +280,8 @@ def sorting(algorithm_id:str, request:OrdenacaoRequest):
 @app.post("/api/grafos/{algorithm_id}")
 def graphs(algorithm_id:str):
     if algorithm_id not in {"bfs","dfs","dijkstra","astar"}: raise HTTPException(404,"Grafo não encontrado.")
-    return {"algoritmo":algorithm_id.upper(),"grafo":graph_steps(algorithm_id)}
+    result=graph_steps(algorithm_id)
+    return {"algoritmo":algorithm_id.upper(),"grafo":result,"passos":result["passos"]}
 
 @app.post("/api/arvores/{algorithm_id}")
 def trees(algorithm_id:str, request:OrdenacaoRequest):
