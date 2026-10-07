@@ -62,6 +62,7 @@ export default function App() {
   const [historico, setHistorico] = useState(() => JSON.parse(localStorage.getItem('arena-historico') || '[]'))
   const [ranking, setRanking] = useState(() => JSON.parse(localStorage.getItem('arena-ranking') || '[]'))
   const [rival, setRival] = useState('quick')
+  const [raceInfo, setRaceInfo] = useState(null)
   const inicioRef = useRef(null)
   const refs = useRef(new Map())
   const previousRects = useRef(new Map())
@@ -72,6 +73,8 @@ export default function App() {
   const linhaAtiva = passo?.linha ?? 0
   const duracaoBase = passo?.tipo === 'troca' ? 520 : passo?.tipo === 'comparacao' ? 300 : 180
   const dificuldadeAtual = dificuldades[dificuldade]
+  const rivalInfo = algoritmos.find((item) => item.id === rival)
+  const raceProgresso = raceInfo ? Math.min(100, Math.round((tempo / Math.max(raceInfo.tempoEstimado, 1)) * 100)) : 0
   const tempoFormatado = String(Math.floor(tempo / 60000)).padStart(2, '0') + ':' + String(Math.floor((tempo % 60000) / 1000)).padStart(2, '0') + '.' + String(Math.floor((tempo % 1000) / 10)).padStart(2, '0')
 
   function aplicarPasso(evento, novoIndice) {
@@ -98,6 +101,15 @@ export default function App() {
   }
 
   async function iniciar() {
+    if (modo === 'race' && !eGrafo) {
+      const rivalResposta = await fetch('/api/ordenacao/' + rival, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valores }) })
+      if (!rivalResposta.ok) return
+      const rivalDados = await rivalResposta.json()
+      const tempoEstimado = rivalDados.passos.reduce((total, item) => total + (item.tipo === 'troca' ? 520 : item.tipo === 'comparacao' ? 300 : 180) / dificuldadeAtual.multiplicador, 0) / velocidade
+      setRaceInfo({ rivalPassos: rivalDados.passos.length, tempoEstimado, rivalNome: rivalDados.algoritmo })
+    } else {
+      setRaceInfo(null)
+    }
     if (rodando || finalizado && modo === 'visualizador') return
     if (eGrafo) {
       const resposta = await fetch('/api/grafos/' + algoritmo, { method: 'POST' })
@@ -203,8 +215,13 @@ export default function App() {
 
   function proximoPasso() {
     if (!passos.length || indice >= passos.length - 1 || rodando && !pausado) return
-    aplicarPasso(passos[indice + 1], indice + 1)
-    if (indice + 1 === passos.length - 1) setFinalizado(true)
+    const novoIndice = indice + 1
+    aplicarPasso(passos[novoIndice], novoIndice)
+    if (novoIndice === passos.length - 1) {
+      setFinalizado(true)
+      setRodando(false)
+      setPausado(false)
+    }
   }
 
   function novoDesafio() {
