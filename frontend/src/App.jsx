@@ -43,6 +43,7 @@ export default function App() {
   const [movimentos, setMovimentos] = useState(0)
   const [tempo, setTempo] = useState(0)
   const inicioRef = useRef(null)
+  const pausadoRef = useRef(false)
 
   const maior = useMemo(() => Math.max(...valores), [valores])
 
@@ -76,6 +77,7 @@ export default function App() {
     setIndicePasso(0)
     setRodando(true)
     setPausado(false)
+    pausadoRef.current = false
     setFinalizado(false)
     setComparacoes(0)
     setMovimentos(0)
@@ -83,6 +85,7 @@ export default function App() {
     inicioRef.current = Date.now()
 
     for (let i = 0; i < dados.passos.length; i++) {
+      while (pausadoRef.current) await esperar(50)
       const evento = dados.passos[i]
       aplicarPasso(evento, i)
 
@@ -95,6 +98,7 @@ export default function App() {
     aplicarPasso(fim, dados.passos.length - 1)
     setRodando(false)
     setPausado(false)
+    pausadoRef.current = false
     setFinalizado(true)
     setTempo(Date.now() - inicioRef.current)
   }
@@ -114,7 +118,11 @@ export default function App() {
 
   function togglePausa() {
     if (!rodando) return
-    setPausado((estado) => !estado)
+    setPausado((estado) => {
+      const novoEstado = !estado
+      pausadoRef.current = novoEstado
+      return novoEstado
+    })
   }
 
   function passoAnterior() {
