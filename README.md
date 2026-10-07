@@ -1,25 +1,71 @@
 # ⚔️ Arena de Algoritmos
 
-Um jogo educativo e visual para transformar algoritmos e estruturas de dados em desafios competitivos.
+Uma arena educativa e visual para aprender algoritmos e estruturas de dados através de execução passo a passo, desafios e corridas.
 
 ## 🌐 Acesse
 
-🚀 **[Acessar a Arena de Algoritmos](https://arena-algoritmos.vercel.app/)**
+🚀 **[Arena de Algoritmos](https://arena-algoritmos.vercel.app/)**
 
-## Arenas
+## 🧩 Arenas
 
-- ⚡ Arena de Ordenação
-- 🗺️ Arena de Caminhos
-- 🌳 Arena de Árvores
-- 🧠 Arena de Lógica
+### ⚡ Ordenação
+Bubble Sort · Selection Sort · Insertion Sort · Quick Sort · Merge Sort · Heap Sort
 
-## 🛠️ Tecnologias
+### 🗺️ Grafos
+BFS · DFS · Dijkstra · A*
 
-- Python + FastAPI
-- React + JavaScript + Vite
+### 🌳 Árvores
+BST · AVL · Heap
+
+### 🧠 Lógica
+Recursão · Backtracking · Greedy · Programação Dinâmica
+
+## 🎮 Recursos
+
+- Visualização passo a passo
+- Play, pausa, avanço e retrocesso
+- Timeline navegável
+- Controle de velocidade
+- Tamanho de array configurável
+- Dificuldades: Treino, Fácil, Médio, Difícil e Boss
+- Código sincronizado com a etapa atual
+- Variáveis e estado da execução
+- Animações de comparação, troca, visita e caminho
+- Race Mode entre algoritmos de ordenação
+- Pontuação e multiplicadores
+- Ranking e histórico local
+- Atalhos de teclado
+- Layout responsivo
+
+## 🛠️ Stack
+
+- React 19
+- JavaScript
+- Vite
+- Python
+- FastAPI
 - CSS
-- SQLite
 
-## 🚧 Status
+## 🚀 Desenvolvimento local
 
-Em desenvolvimento — primeira etapa: Arena de Ordenação.
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+O frontend usa `/api` e, no desenvolvimento local, o Vite encaminha as requisições para `localhost:8000`.
+
+## 📌 Status
+
+**Versão 1.0 em desenvolvimento ativo.**
+
+A base das quatro arenas está implementada. As próximas evoluções podem adicionar novos algoritmos, desafios, autenticação e ranking global.
