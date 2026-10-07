@@ -30,7 +30,8 @@ const bubbleCode = [
 ]
 
 export default function App() {
-  const [valores, setValores] = useState(() => gerarValores())
+  const [tamanhoArray, setTamanhoArray] = useState(12)
+  const [valores, setValores] = useState(() => gerarValores(12))
   const [algoritmo, setAlgoritmo] = useState('bubble')
   const [passo, setPasso] = useState(null)
   const [indicePasso, setIndicePasso] = useState(0)
@@ -131,7 +132,7 @@ export default function App() {
 
   function novoDesafio() {
     if (rodando) return
-    setValores(gerarValores())
+    setValores(gerarValores(tamanhoArray))
     setPasso(null)
     setPassos([])
     setIndicePasso(0)
@@ -276,6 +277,21 @@ export default function App() {
                 disabled={!passos.length || rodando}
                 aria-label="Navegar pelos passos da execução"
               />
+            </div>
+
+            <div className="array-settings">
+              <label>
+                Tamanho do array
+                <input
+                  type="range"
+                  min="6"
+                  max="20"
+                  value={tamanhoArray}
+                  onChange={(evento) => setTamanhoArray(Number(evento.target.value))}
+                  disabled={rodando}
+                />
+                <strong>{tamanhoArray}</strong>
+              </label>
             </div>
 
             <div className="playback">
