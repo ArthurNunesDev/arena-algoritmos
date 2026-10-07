@@ -228,8 +228,7 @@ def tree_steps(kind, values):
 
 ALGORITHMS=[*[(k,n,"Ordenação") for k,n in SORTS.items()],
             *[("bfs","BFS","Grafos"),("dfs","DFS","Grafos"),("dijkstra","Dijkstra","Grafos"),("astar","A*","Grafos"),
-              ("bst","BST","Árvores"),("avl","AVL","Árvores"),("treeheap","Heap","Árvores"),
-              ("recursao","Recursão","Lógica"),("backtracking","Backtracking","Lógica"),("greedy","Greedy","Lógica"),("dp","Programação Dinâmica","Lógica")]]
+              ("bst","BST","Árvores"),("avl","AVL","Árvores"),("treeheap","Heap","Árvores")]]
 
 @app.get("/api/health")
 def health(): return {"status":"ok","projeto":"arena-algoritmos","versao":"1.0.0"}
