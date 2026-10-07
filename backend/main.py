@@ -241,7 +241,7 @@ def sorting(algorithm_id:str, request:OrdenacaoRequest):
     if algorithm_id not in SORTS: raise HTTPException(404,"Algoritmo não encontrado.")
     return {"algoritmo":SORTS[algorithm_id],"passos":sorting_steps(request.valores,algorithm_id)}
 
-@app.post("/api/grafos/{algorithm_id}")
+@app.api_route("/api/grafos/{algorithm_id}", methods=["GET","POST"])
 def graphs(algorithm_id:str):
     if algorithm_id not in {"bfs","dfs","dijkstra","astar"}: raise HTTPException(404,"Grafo não encontrado.")
     result=graph_steps(algorithm_id)
