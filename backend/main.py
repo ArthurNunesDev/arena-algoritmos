@@ -154,34 +154,110 @@ def graph_steps(kind):
     return {"nodes":nodes,"edges":edges,"passos":steps}
 
 def tree_steps(kind, values):
-    vals=sorted(set(values))[:15]; nodes=[]; steps=[]
-    def add(t,node=None,**kw): steps.append({"tipo":t,"node":node,"nodes":nodes.copy(),"linha":kw.pop("linha",3),"mensagem":kw.pop("mensagem",""),"variaveis":kw})
-    for v in vals:
-        nodes.append(v); nodes.sort(); add("insercao",v,linha=3,mensagem=f"Inserindo {v} na árvore.",tamanho=len(nodes))
-    if kind=="avl":
-        add("rotacao",nodes[len(nodes)//2] if nodes else None,linha=5,mensagem="A AVL verifica e equilibra os fatores de balanceamento.",fator=0)
-    order=nodes if kind=="bst" else sorted(nodes)
-    for v in order: add("visita",v,linha=4,mensagem=f"Visitando {v}.")
-    add("fim",nodes[-1] if nodes else None,linha=6,mensagem=f"{kind.upper()} concluída.",tamanho=len(nodes))
-    return {"nodes":nodes,"passos":steps}
+    source=list(dict.fromkeys(values))[:12]
+    nodes={}
+    steps=[]
+    next_id=0
+    def snapshot():
+        return [{"id":n,"valor":v["valor"],"esquerda":v["esquerda"],"direita":v["direita"],"altura":v["altura"]} for n,v in nodes.items()]
+    def add(tipo,node=None,linha=3,mensagem="",**variables):
+        steps.append({"tipo":tipo,"node":node,"tree":snapshot(),"linha":linha,"mensagem":mensagem,"variaveis":variables})
+    def height(n): return nodes[n]["altura"] if n is not None else 0
+    def update(n): nodes[n]["altura"]=1+max(height(nodes[n]["esquerda"]),height(nodes[n]["direita"]))
+    def new_node(value):
+        nonlocal next_id
+        ident=next_id; next_id+=1
+        nodes[ident]={"valor":value,"esquerda":None,"direita":None,"altura":1}
+        return ident
+    root=None
+    def bst_insert(current,value):
+        nonlocal root
+        if current is None: return new_node(value)
+        if value < nodes[current]["valor"]:
+            add("comparacao",current,3,f"Comparando {value} com {nodes[current]['valor']}.",valor=value,no=nodes[current]["valor"])
+            nodes[current]["esquerda"]=bst_insert(nodes[current]["esquerda"],value)
+        elif value > nodes[current]["valor"]:
+            add("comparacao",current,3,f"Comparando {value} com {nodes[current]['valor']}.",valor=value,no=nodes[current]["valor"])
+            nodes[current]["direita"]=bst_insert(nodes[current]["direita"],value)
+        update(current)
+        return current
+    def rotate_right(y):
+        x=nodes[y]["esquerda"]; t=nodes[x]["direita"]; nodes[x]["direita"]=y; nodes[y]["esquerda"]=t; update(y); update(x)
+        add("rotacao",x,5,"Rotação à direita aplicada.",tipo_rotacao="direita")
+        return x
+    def rotate_left(x):
+        y=nodes[x]["direita"]; t=nodes[y]["esquerda"]; nodes[y]["esquerda"]=x; nodes[x]["direita"]=t; update(x); update(y)
+        add("rotacao",y,5,"Rotação à esquerda aplicada.",tipo_rotacao="esquerda")
+        return y
+    def avl_insert(current,value):
+        if current is None: return new_node(value)
+        if value < nodes[current]["valor"]: nodes[current]["esquerda"]=avl_insert(nodes[current]["esquerda"],value)
+        elif value > nodes[current]["valor"]: nodes[current]["direita"]=avl_insert(nodes[current]["direita"],value)
+        update(current); balance=height(nodes[current]["esquerda"])-height(nodes[current]["direita"])
+        add("balanceamento",current,4,f"Fator de balanceamento de {nodes[current]['valor']}: {balance}.",fator=balance)
+        if balance>1 and value<nodes[nodes[current]["esquerda"]]["valor"]: return rotate_right(current)
+        if balance<-1 and value>nodes[nodes[current]["direita"]]["valor"]: return rotate_left(current)
+        if balance>1:
+            nodes[current]["esquerda"]=rotate_left(nodes[current]["esquerda"]); return rotate_right(current)
+        if balance<-1:
+            nodes[current]["direita"]=rotate_right(nodes[current]["direita"]); return rotate_left(current)
+        return current
+    for value in source:
+        if kind=="avl": root=avl_insert(root,value)
+        else: root=bst_insert(root,value)
+        add("insercao",root,3,f"Inserindo {value} na árvore.",valor=value,raiz=nodes[root]["valor"])
+    if kind=="treeheap":
+        heap=[]
+        for value in source:
+            heap.append(value); i=len(heap)-1
+            while i>0:
+                p=(i-1)//2
+                if heap[p]>=heap[i]: break
+                heap[p],heap[i]=heap[i],heap[p]; i=p
+                add("troca",i,4,f"{value} subiu no Max Heap.",valor=value)
+        add("heap",0,"Max Heap construído.",tamanho=len(heap),raiz=heap[0] if heap else None)
+        return {"nodes":heap,"passos":steps}
+    def visit(n):
+        if n is None:return
+        add("visita",n,4,f"Visitando {nodes[n]['valor']}.",valor=nodes[n]["valor"])
+        visit(nodes[n]["esquerda"]); visit(nodes[n]["direita"])
+    visit(root)
+    add("fim",root,6,f"{kind.upper()} concluída.",tamanho=len(nodes),altura=height(root))
+    return {"nodes":snapshot(),"root":root,"passos":steps}
 
 def logic_steps(kind, values):
-    a=values[:10]; steps=[]
-    def add(t,i,msg,**kw): steps.append({"tipo":t,"indice":i,"linha":kw.pop("linha",3),"mensagem":msg,"variaveis":kw})
+    a=values[:8]; steps=[]
+    def add(t,i,msg,linha=3,**variables): steps.append({"tipo":t,"indice":i,"linha":linha,"mensagem":msg,"variaveis":variables})
     if kind=="recursao":
-        for i in range(min(len(a),8)): add("chamada",i,f"Chamada recursiva no nível {i}.",nivel=i)
-        for i in range(min(len(a),8)-1,-1,-1): add("retorno",i,f"Retornando do nível {i}.",nivel=i)
+        n=max(3,min(7,len(a)))
+        def fact(x):
+            add("chamada",x,f"Entrando em f({x}).",3,n=x)
+            if x<=1: add("base",x,"Caso base alcançado.",4,n=x); return 1
+            result=x*fact(x-1); add("retorno",x,f"f({x}) = {result}.",5,n=x,resultado=result); return result
+        result=fact(n); add("fim",-1,f"Fatorial de {n}: {result}.",6,resultado=result)
     elif kind=="backtracking":
-        for i,v in enumerate(a[:7]): add("escolha",i,f"Escolhendo {v}.",valor=v)
-        for i in range(min(7,len(a))-1,-1,-1): add("retrocesso",i,f"Retrocedendo da posição {i}.",posicao=i)
+        target=3; chosen=[]
+        def search(pos):
+            if len(chosen)==target:
+                add("solucao",pos,"Combinação encontrada.",5,combinacao=chosen.copy()); return True
+            for i in range(pos,len(a)):
+                chosen.append(a[i]); add("escolha",i,f"Escolhendo {a[i]}.",3,valor=a[i],profundidade=len(chosen))
+                if search(i+1): return True
+                removed=chosen.pop(); add("retrocesso",i,f"Desfazendo {removed}.",5,valor=removed)
+            return False
+        search(0); add("fim",-1,"Backtracking encontrou uma solução.",6,combinacao=chosen.copy())
     elif kind=="greedy":
-        best=sorted(a,reverse=True)
-        for i,v in enumerate(best): add("escolha",i,f"Escolha gulosa: {v}.",valor=v)
+        intervals=sorted([(i,i+1+(v%3)) for i,v in enumerate(a)],key=lambda x:x[1]); last=-1; chosen=[]
+        for s,e in intervals:
+            add("candidato",s,f"Avaliando intervalo [{s},{e}].",3,inicio=s,fim=e)
+            if s>=last: chosen.append((s,e)); last=e; add("escolha",s,f"Escolhido [{s},{e}].",4,inicio=s,fim=e)
+        add("fim",-1,"Estratégia gulosa concluída.",6,escolhas=len(chosen))
     else:
-        total=0
-        for i,v in enumerate(a):
-            total+=v; add("dp",i,f"Atualizando o estado DP para {total}.",valor=v,total=total)
-    add("fim",-1,f"{kind.replace('_',' ').title()} concluído.",linha=6)
+        n=max(6,min(12,len(a)+4)); dp=[0]*(n+1); dp[1]=1
+        add("dp",0,"Casos base definidos.",3,dp=dp[:2])
+        for i in range(2,n+1):
+            dp[i]=dp[i-1]+dp[i-2]; add("dp",i,f"dp[{i}] = dp[{i-1}] + dp[{i-2}] = {dp[i]}.",4,i=i,valor=dp[i])
+        add("fim",-1,f"Fibonacci de {n}: {dp[n]}.",6,resultado=dp[n])
     return {"passos":steps}
 
 ALGORITHMS=[*[(k,n,"Ordenação") for k,n in SORTS.items()],
