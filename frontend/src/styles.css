@@ -43,10 +43,10 @@ h1 { margin:5px 0 0; font:700 clamp(25px,3vw,38px)/1.1 'Space Grotesk',sans-seri
 .array-item.compare { transform:translateY(-13px) scale(1.04); border-color:#8d7cff; box-shadow:0 0 25px rgba(118,103,255,.3); filter:brightness(1.25); }
 .array-item.done { border-color:#4b9b70; }
 .operation-message { min-height:32px; display:grid; place-items:center; color:#aeb7c6; font-size:12px; }
-.array-item.swap-left { animation: swapLeft .52s ease; }
-.array-item.swap-right { animation: swapRight .52s ease; }
-@keyframes swapLeft { 0%,100% { transform:translateX(0) translateY(-13px) scale(1.04); } 50% { transform:translateX(28px) translateY(-20px) scale(1.07); } }
-@keyframes swapRight { 0%,100% { transform:translateX(0) translateY(-13px) scale(1.04); } 50% { transform:translateX(-28px) translateY(-20px) scale(1.07); } }
+.array-item.swapping { border-color:#a18fff; box-shadow:0 0 30px rgba(118,103,255,.38); }
+.array-item-wrapper { will-change:transform; }
+.array-item { will-change:transform; }
+
 
 .timeline { padding:13px 0 4px; }
 .timeline-meta { display:flex; justify-content:space-between; margin-bottom:7px; color:#596476; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
