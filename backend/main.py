@@ -292,4 +292,5 @@ def trees(algorithm_id:str, request:OrdenacaoRequest):
 @app.post("/api/logica/{algorithm_id}")
 def logic(algorithm_id:str, request:OrdenacaoRequest):
     if algorithm_id not in {"recursao","backtracking","greedy","dp"}: raise HTTPException(404,"Lógica não encontrada.")
-    return {"algoritmo":algorithm_id,"passos":logic_steps(algorithm_id,request.valores)}
+    result=logic_steps(algorithm_id,request.valores)
+    return {"algoritmo":algorithm_id,"passos":result["passos"]}
