@@ -202,6 +202,7 @@ export default function App() {
       }
       if (evento.key === 'ArrowLeft') passoAnterior()
       if (evento.key === 'ArrowRight') proximoPasso()
+      if (evento.key.toLowerCase() === 'n' && !rodando) novoDesafio()
     }
     window.addEventListener('keydown', teclado)
     return () => window.removeEventListener('keydown', teclado)
@@ -319,7 +320,7 @@ export default function App() {
             <div className="operation-message">{passo?.tipo === 'comparacao' ? 'Comparando elementos.' : passo?.tipo === 'troca' ? 'Movimento realizado.' : dificuldadeAtual.descricao}</div>
           </div>
 
-          <div className="timeline"><div className="timeline-meta"><span>Timeline</span><span>{passosAtuais}</span></div><input type="range" min="0" max={Math.max(passos.length - 1,0)} value={passos.length ? indice : 0} onChange={(e) => { if (!passos.length) return; const i=Number(e.target.value); aplicarPasso(passos[i],i); setFinalizado(i===passos.length-1) }} disabled={!passos.length || rodando && !pausado} /></div>
+          <div className="timeline"><div className="timeline-meta"><span>Timeline</span><span>{passosAtuais}</span></div><input type="range" min="0" max={Math.max(passos.length - 1,0)} value={passos.length ? indice : 0} onChange={(e) => { if (!passos.length) return; const i=Number(e.target.value); aplicarPasso(passos[i],i); const fim=i===passos.length-1; setFinalizado(fim); if(fim){setRodando(false);setPausado(false)} }} disabled={!passos.length || rodando && !pausado} /></div>
 
           {!eGrafo && <div className="array-settings"><label>Tamanho do array <input type="range" min="6" max="20" value={tamanho} onChange={(e) => setTamanho(Number(e.target.value))} disabled={rodando} /><strong>{tamanho}</strong></label></div>}
 
@@ -339,7 +340,7 @@ export default function App() {
             <section className="info-panel"><div className="panel-title">Estado</div><div className="state-list">{Object.entries(passo?.variaveis || {}).slice(0,6).map(([chave,valor])=><div key={chave}><span>{chave}</span><strong>{String(valor)}</strong></div>)}<div><span>pontuação</span><strong>{pontuacao}</strong></div><div><span>dificuldade</span><strong>{dificuldadeAtual.nome}</strong></div></div></section>
           </div>
 
-          {modo === 'race' && <section className="race-panel"><div><span className="section-kicker">RIVAL</span><h2>{codigoNome(rival)}</h2><p>O Race Mode compara sua execução com outro algoritmo usando o mesmo desafio.</p></div><div className="race-badge">⚔ VS ⚔</div></section>}
+          {modo === 'race' && <section className="race-panel"><div><span className="section-kicker">RIVAL</span><h2>{rivalInfo?.nome}</h2><p>Mesmo desafio, com progresso estimado a partir dos passos reais do algoritmo rival.</p><div className="race-progress"><span style={{width: raceProgresso + '%'}} /></div><small>{raceInfo ? raceProgresso + '% concluído' : 'Aguardando corrida'}</small></div><div className="race-badge">⚔ VS ⚔</div></section>}
 
           <section className="history-panel"><div className="history-header"><div><span className="section-kicker">PROGRESSO</span><h2>Ranking & histórico</h2></div><span>{listaRanking.length}/10 melhores</span></div>{listaRanking.length ? <div className="ranking-list">{listaRanking.slice(0,10).map((item,index)=><div key={item.data+item.algoritmo+index}><b>#{index+1}</b><span>{item.nome}</span><span>{dificuldades[item.dificuldade]?.nome}</span><strong>{item.pontos} pts</strong></div>)}</div> : <p className="empty-state">Complete uma corrida para registrar sua pontuação.</p>}</section>
         </div>
