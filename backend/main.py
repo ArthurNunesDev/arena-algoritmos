@@ -226,41 +226,6 @@ def tree_steps(kind, values):
     add("fim",root,6,f"{kind.upper()} concluída.",tamanho=len(nodes),altura=height(root))
     return {"nodes":snapshot(),"root":root,"passos":steps}
 
-def logic_steps(kind, values):
-    a=values[:8]; steps=[]
-    def add(t,i,msg,linha=3,**variables): steps.append({"tipo":t,"indice":i,"linha":linha,"mensagem":msg,"variaveis":variables})
-    if kind=="recursao":
-        n=max(3,min(7,len(a)))
-        def fact(x):
-            add("chamada",x,f"Entrando em f({x}).",3,n=x)
-            if x<=1: add("base",x,"Caso base alcançado.",4,n=x); return 1
-            result=x*fact(x-1); add("retorno",x,f"f({x}) = {result}.",5,n=x,resultado=result); return result
-        result=fact(n); add("fim",-1,f"Fatorial de {n}: {result}.",6,resultado=result)
-    elif kind=="backtracking":
-        target=3; chosen=[]
-        def search(pos):
-            if len(chosen)==target:
-                add("solucao",pos,"Combinação encontrada.",5,combinacao=chosen.copy()); return True
-            for i in range(pos,len(a)):
-                chosen.append(a[i]); add("escolha",i,f"Escolhendo {a[i]}.",3,valor=a[i],profundidade=len(chosen))
-                if search(i+1): return True
-                removed=chosen.pop(); add("retrocesso",i,f"Desfazendo {removed}.",5,valor=removed)
-            return False
-        search(0); add("fim",-1,"Backtracking encontrou uma solução.",6,combinacao=chosen.copy())
-    elif kind=="greedy":
-        intervals=sorted([(i,i+1+(v%3)) for i,v in enumerate(a)],key=lambda x:x[1]); last=-1; chosen=[]
-        for s,e in intervals:
-            add("candidato",s,f"Avaliando intervalo [{s},{e}].",3,inicio=s,fim=e)
-            if s>=last: chosen.append((s,e)); last=e; add("escolha",s,f"Escolhido [{s},{e}].",4,inicio=s,fim=e)
-        add("fim",-1,"Estratégia gulosa concluída.",6,escolhas=len(chosen))
-    else:
-        n=max(6,min(12,len(a)+4)); dp=[0]*(n+1); dp[1]=1
-        add("dp",0,"Casos base definidos.",3,dp=dp[:2])
-        for i in range(2,n+1):
-            dp[i]=dp[i-1]+dp[i-2]; add("dp",i,f"dp[{i}] = dp[{i-1}] + dp[{i-2}] = {dp[i]}.",4,i=i,valor=dp[i])
-        add("fim",-1,f"Fibonacci de {n}: {dp[n]}.",6,resultado=dp[n])
-    return {"passos":steps}
-
 ALGORITHMS=[*[(k,n,"Ordenação") for k,n in SORTS.items()],
             *[("bfs","BFS","Grafos"),("dfs","DFS","Grafos"),("dijkstra","Dijkstra","Grafos"),("astar","A*","Grafos"),
               ("bst","BST","Árvores"),("avl","AVL","Árvores"),("treeheap","Heap","Árvores"),
@@ -289,8 +254,3 @@ def trees(algorithm_id:str, request:OrdenacaoRequest):
     result=tree_steps(algorithm_id,request.valores)
     return {"algoritmo":algorithm_id.upper(),"arvore":result,"passos":result["passos"]}
 
-@app.post("/api/logica/{algorithm_id}")
-def logic(algorithm_id:str, request:OrdenacaoRequest):
-    if algorithm_id not in {"recursao","backtracking","greedy","dp"}: raise HTTPException(404,"Lógica não encontrada.")
-    result=logic_steps(algorithm_id,request.valores)
-    return {"algoritmo":algorithm_id,"passos":result["passos"]}
