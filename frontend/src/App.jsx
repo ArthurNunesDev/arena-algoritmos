@@ -86,8 +86,52 @@ export default function App(){
  const visualArray=useMemo(()=>currentArray,[currentArray])
  function renderArray(){return <div className="array">{visualArray.map((v,i)=><div className="array-item-wrap" key={(step?.ids?.[i]??i)+'-'+i}><div className={'array-item '+(step?.indices?.includes(i)?'active ':'')+(finished?'done':'')} style={{height:Math.max(42,v/max*220)}}><span>{v}</span></div><small>{i}</small></div>)}</div>}
  function renderGraph(){const pos=[[9,50],[28,20],[28,80],[47,16],[47,50],[47,84],[70,27],[70,73]], visited=new Set(step?.visited||[]), path=new Set(step?.path||[]);return <div className="graph">{<svg viewBox="0 0 100 100" preserveAspectRatio="none">{[[0,1,1],[0,2,4],[1,3,2],[1,4,3],[2,4,1],[2,5,2],[3,6,2],[4,6,2],[4,7,5],[5,7,1],[6,7,1]].map(([a,b,w])=><g key={a+'-'+b}><line className={path.has(a)&&path.has(b)?'path':''} x1={pos[a][0]} y1={pos[a][1]} x2={pos[b][0]} y2={pos[b][1]}/><text x={(pos[a][0]+pos[b][0])/2} y={(pos[a][1]+pos[b][1])/2}>{w}</text></g>)}</svg>}{pos.map(([x,y],n)=><div key={n} className={'graph-node '+(visited.has(n)?'visited ':'')+(step?.node===n?'active ':'')+(path.has(n)?'path':'')} style={{left:x+'%',top:y+'%'}}>{n}</div>)}</div>}
- function renderTree(){if(algorithm==='treeheap'){const heap=step?.nodes||[];return <div className="tree">{[0,1,2,3].map(level=><div className="tree-level" key={level}>{heap.slice(2**level,2**(level+1)).map((v,i)=><div className="tree-node" key={level+'-'+i}>{v}</div>)}</div>)}</div>}const tree=step?.tree||[], byId=new Map(tree.map(n=>[n.id,n])), parentIds=new Set();tree.forEach(n=>{if(n.esquerda!=null)parentIds.add(n.esquerda);if(n.direita!=null)parentIds.add(n.direita)});const root=tree.find(n=>!parentIds.has(n.id))?.id, levels=[];const walk=(id,level)=>{if(id==null)return;(levels[level]??=[]).push(id);const n=byId.get(id);if(n){walk(n.esquerda,level+1);walk(n.direita,level+1)}};walk(root,0);return <div className="tree">{levels.map((level,l)=><div className="tree-level" key={l}>{level.map(id=>{const n=byId.get(id);return <div className={'tree-node '+(id===step?.node?'active':'')} key={id}>{n?.valor}</div>})}</div>)}</div>}
- function renderLogic(){return <div className="logic-visual">{steps.map((s,i)=><div key={i} className={'logic-step '+(i===index?'active':'')}><b>{String(i+1).padStart(2,'0')}</b><span>{s.mensagem}</span></div>)}</div>}
+ function renderTree(){
+  if(algorithm==='treeheap'){
+    const heap=step?.nodes||[];
+    const heapNode=(i)=>{
+      if(i>=heap.length)return null;
+      return <div className="tree-branch" key={i}>
+        <div className={'tree-node '+(i===step?.node?'active':'')}>{heap[i]}</div>
+        {(2*i+1<heap.length||2*i+2<heap.length)&&<div className="tree-children">
+          {heapNode(2*i+1)}
+          {heapNode(2*i+2)}
+        </div>}
+      </div>
+    };
+    return <div className="tree-canvas">{heapNode(0)}</div>;
+  }
+  const tree=step?.tree||[];
+  const byId=new Map(tree.map(n=>[n.id,n]));
+  const parentIds=new Set();
+  tree.forEach(n=>{if(n.esquerda!=null)parentIds.add(n.esquerda);if(n.direita!=null)parentIds.add(n.direita)});
+  const root=tree.find(n=>!parentIds.has(n.id))?.id;
+  const treeNode=(id)=>{
+    if(id==null)return null;
+    const n=byId.get(id); if(!n)return null;
+    return <div className="tree-branch" key={id}>
+      <div className={'tree-node '+(id===step?.node?'active':'')}>{n.valor}</div>
+      {(n.esquerda!=null||n.direita!=null)&&<div className="tree-children">
+        {treeNode(n.esquerda)}
+        {treeNode(n.direita)}
+      </div>}
+    </div>;
+  };
+  return <div className="tree-canvas">{treeNode(root)}</div>;
+ }
+ function renderLogic(){
+  const windowSize=7;
+  const start=Math.max(0,Math.min(index-3,Math.max(steps.length-windowSize,0)));
+  const visible=steps.slice(start,start+windowSize);
+  return <div className="logic-visual">
+    {visible.map((s,i)=>{
+      const realIndex=start+i;
+      return <div key={realIndex} className={'logic-step '+(realIndex===index?'active':'')}>
+        <b>{String(realIndex+1).padStart(2,'0')}</b><span>{s.mensagem}</span>
+      </div>
+    })}
+  </div>
+}
  function renderVisual(){if(isGraph(algorithm))return renderGraph();if(isTree(algorithm))return renderTree();if(isLogic(algorithm))return renderLogic();return renderArray()}
  const lines=code[algorithm]||[]
  return <main className="app-shell">
