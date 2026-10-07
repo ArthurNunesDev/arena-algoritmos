@@ -64,6 +64,8 @@ export default function App() {
   const [rival, setRival] = useState('quick')
   const [raceInfo, setRaceInfo] = useState(null)
   const inicioRef = useRef(null)
+  const valoresIniciaisRef = useRef([...valores])
+  const execucaoRef = useRef(0)
   const refs = useRef(new Map())
   const previousRects = useRef(new Map())
 
@@ -103,7 +105,10 @@ export default function App() {
   async function iniciar(reiniciar = false) {
     if (rodando && !reiniciar) return
 
+    const execucaoAtual = ++execucaoRef.current
+
     if (reiniciar) {
+      setValores([...valoresIniciaisRef.current])
       setPassos([])
       setPasso(null)
       setIndice(0)
@@ -117,8 +122,9 @@ export default function App() {
 
     if (modo === 'race' && !eGrafo) {
       const rivalResposta = await fetch('/api/ordenacao/' + rival, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valores }) })
-      if (!rivalResposta.ok) return
+      if (!rivalResposta.ok || execucaoAtual !== execucaoRef.current) return
       const rivalDados = await rivalResposta.json()
+      if (execucaoAtual !== execucaoRef.current) return
       const tempoEstimado = rivalDados.passos.reduce((total, item) => total + (item.tipo === 'troca' ? 520 : item.tipo === 'comparacao' ? 300 : 180) / dificuldadeAtual.multiplicador, 0) / velocidade
       setRaceInfo({ rivalPassos: rivalDados.passos.length, tempoEstimado, rivalNome: rivalDados.algoritmo })
     } else {
@@ -127,8 +133,9 @@ export default function App() {
     if (rodando && !reiniciar) return
     if (eGrafo) {
       const resposta = await fetch('/api/grafos/' + algoritmo, { method: 'POST' })
-      if (!resposta.ok) return
+      if (!resposta.ok || execucaoAtual !== execucaoRef.current) return
       const dados = await resposta.json()
+      if (execucaoAtual !== execucaoRef.current) return
       const lista = dados.grafo.passos
       setPassos(lista)
       setPasso(lista[0])
@@ -146,8 +153,9 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ valores }),
     })
-    if (!resposta.ok) return
+    if (!resposta.ok || execucaoAtual !== execucaoRef.current) return
     const dados = await resposta.json()
+    if (execucaoAtual !== execucaoRef.current) return
     setPassos(dados.passos)
     setPasso(dados.passos[0])
     setIndice(0)
@@ -240,8 +248,9 @@ export default function App() {
   }
 
   function novoDesafio() {
-    if (rodando) return
+    ++execucaoRef.current
     const novos = gerarValores(tamanho, dificuldade)
+    valoresIniciaisRef.current = [...novos]
     setValores(novos)
     setPassos([])
     setPasso(null)
@@ -255,14 +264,26 @@ export default function App() {
   }
 
   function selecionarAlgoritmo(id) {
-    if (rodando) return
+    ++execucaoRef.current
+    setRodando(false)
+    setPausado(false)
+    setTempo(0)
+    setComparacoes(0)
+    setMovimentos(0)
+    setPasso(null)
+    setIndice(0)
+    setFinalizado(false)
     setAlgoritmo(id)
     setPassos([])
     setPasso(null)
     setIndice(0)
     setFinalizado(false)
     setPontuacao(0)
-    if (algoritmos.find((item) => item.id === id)?.categoria === 'Ordenação') setValores(gerarValores(tamanho, dificuldade))
+    if (algoritmos.find((item) => item.id === id)?.categoria === 'Ordenação') {
+      const novos = gerarValores(tamanho, dificuldade)
+      valoresIniciaisRef.current = [...novos]
+      setValores(novos)
+    }
   }
 
   function trocarModo(novoModo) {
@@ -314,7 +335,7 @@ export default function App() {
         <div className="sidebar-heading">Algoritmos</div>
         {['Ordenação','Grafos'].map(categoria => <div className="algorithm-group" key={categoria}>
           <span className="group-title">{categoria}</span>
-          {algoritmos.filter(item => item.categoria === categoria).map(item => <button key={item.id} className={'algorithm-item' + (algoritmo === item.id ? ' active' : '')} disabled={rodando} onClick={() => selecionarAlgoritmo(item.id)}><span>{item.nome}</span></button>)}
+          {algoritmos.filter(item => item.categoria === categoria).map(item => <button key={item.id} className={'algorithm-item' + (algoritmo === item.id ? ' active' : '')} onClick={() => selecionarAlgoritmo(item.id)}><span>{item.nome}</span></button>)}
         </div>)}
         <div className="sidebar-section"><span className="group-title">Arena</span><div className="arena-note">🔥 Multiplicador {dificuldadeAtual.multiplicador}x<br />{dificuldadeAtual.descricao}</div></div>
       </aside>
