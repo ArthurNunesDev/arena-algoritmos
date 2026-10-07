@@ -5,7 +5,7 @@ const algorithms = [
   ['quick','Quick Sort','Ordenação'],['merge','Merge Sort','Ordenação'],['heap','Heap Sort','Ordenação'],
   ['bfs','BFS','Grafos'],['dfs','DFS','Grafos'],['dijkstra','Dijkstra','Grafos'],['astar','A*','Grafos'],
   ['bst','BST','Árvores'],['avl','AVL','Árvores'],['treeheap','Heap','Árvores'],
-  ['recursao','Recursão','Lógica'],['backtracking','Backtracking','Lógica'],['greedy','Greedy','Lógica'],['dp','Programação Dinâmica','Lógica'],
+
 ]
 const difficulties={treino:['Treino',1,'Sem pressão'],facil:['Fácil',1.2,'Ritmo confortável'],medio:['Médio',1.6,'Desafio equilibrado'],dificil:['Difícil',2.2,'Pouco tempo para pensar'],boss:['Boss',3,'Caos máximo']}
 const code={
