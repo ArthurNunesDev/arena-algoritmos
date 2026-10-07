@@ -106,6 +106,7 @@ export default function App() {
     if (rodando && !reiniciar) return
 
     const execucaoAtual = ++execucaoRef.current
+    const valoresExecucao = reiniciar ? [...valoresIniciaisRef.current] : valores
 
     if (reiniciar) {
       setValores([...valoresIniciaisRef.current])
@@ -121,7 +122,7 @@ export default function App() {
     }
 
     if (modo === 'race' && !eGrafo) {
-      const rivalResposta = await fetch('/api/ordenacao/' + rival, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valores }) })
+      const rivalResposta = await fetch('/api/ordenacao/' + rival, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valores: valoresExecucao }) })
       if (!rivalResposta.ok || execucaoAtual !== execucaoRef.current) return
       const rivalDados = await rivalResposta.json()
       if (execucaoAtual !== execucaoRef.current) return
