@@ -152,7 +152,7 @@ export default function App() {
     const resposta = await fetch('/api/ordenacao/' + algoritmo, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ valores }),
+      body: JSON.stringify({ valores: valoresExecucao }),
     })
     if (!resposta.ok || execucaoAtual !== execucaoRef.current) return
     const dados = await resposta.json()
