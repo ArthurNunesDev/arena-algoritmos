@@ -285,7 +285,8 @@ def graphs(algorithm_id:str):
 @app.post("/api/arvores/{algorithm_id}")
 def trees(algorithm_id:str, request:OrdenacaoRequest):
     if algorithm_id not in {"bst","avl","treeheap"}: raise HTTPException(404,"Árvore não encontrada.")
-    return {"algoritmo":algorithm_id.upper(),"arvore":tree_steps(algorithm_id,request.valores)}
+    result=tree_steps(algorithm_id,request.valores)
+    return {"algoritmo":algorithm_id.upper(),"arvore":result,"passos":result["passos"]}
 
 @app.post("/api/logica/{algorithm_id}")
 def logic(algorithm_id:str, request:OrdenacaoRequest):
