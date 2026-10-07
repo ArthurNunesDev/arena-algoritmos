@@ -229,7 +229,14 @@ def health():
 
 @app.get("/api/algoritmos")
 def algoritmos():
-    return [{"id": key, "nome": nome, "categoria": "Ordenação", "disponivel": True} for key, (nome, _) in ALGORITMOS.items()]
+    ordenacao = [{"id": key, "nome": nome, "categoria": "Ordenação", "disponivel": True} for key, (nome, _) in ALGORITMOS.items()]
+    grafos = [
+        {"id": "bfs", "nome": "BFS", "categoria": "Grafos", "disponivel": True},
+        {"id": "dfs", "nome": "DFS", "categoria": "Grafos", "disponivel": True},
+        {"id": "dijkstra", "nome": "Dijkstra", "categoria": "Grafos", "disponivel": True},
+        {"id": "astar", "nome": "A*", "categoria": "Grafos", "disponivel": True},
+    ]
+    return ordenacao + grafos
 
 
 @app.post("/api/ordenacao/{algoritmo_id}")
