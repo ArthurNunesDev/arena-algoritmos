@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 const algoritmos = [
   { id: 'bubble', nome: 'Bubble Sort', categoria: 'Ordenação', disponivel: true },
@@ -44,6 +44,8 @@ export default function App() {
   const [movimentos, setMovimentos] = useState(0)
   const [tempo, setTempo] = useState(0)
   const inicioRef = useRef(null)
+  const itemRefs = useRef(new Map())
+  const previousRectsRef = useRef(new Map())
 
   const maior = useMemo(() => Math.max(...valores), [valores])
 
@@ -114,6 +116,37 @@ export default function App() {
     const interval = window.setInterval(() => setTempo(Date.now() - inicioRef.current), 10)
     return () => window.clearInterval(interval)
   }, [rodando, pausado])
+
+  useLayoutEffect(() => {
+    const currentRects = new Map()
+    itemRefs.current.forEach((node, id) => {
+      if (!node) return
+      currentRects.set(id, node.getBoundingClientRect())
+    })
+
+    currentRects.forEach((current, id) => {
+      const previous = previousRectsRef.current.get(id)
+      const node = itemRefs.current.get(id)
+      if (!previous || !node) return
+
+      const dx = previous.left - current.left
+      const dy = previous.top - current.top
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return
+
+      node.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px)` },
+          { transform: 'translate(0, 0)' },
+        ],
+        {
+          duration: passo?.tipo === 'troca' ? 520 / velocidade : 260 / velocidade,
+          easing: 'cubic-bezier(.22,1,.36,1)',
+        },
+      )
+    })
+
+    previousRectsRef.current = currentRects
+  }, [valores, passo?.ids, velocidade])
 
   useEffect(() => {
     function tratarTeclado(evento) {
@@ -234,13 +267,21 @@ export default function App() {
 
               <div className="array">
                 {valores.map((valor, index) => {
+                  const id = passo?.ids?.[index] ?? index
                   const destacado = passo?.indices?.includes(index)
                   const concluido = finalizado
                   const trocando = passo?.tipo === 'troca' && passo.indices?.includes(index)
                   return (
-                    <div className="array-item-wrapper" key={index}>
+                    <div
+                      className="array-item-wrapper"
+                      key={id}
+                      ref={(node) => {
+                        if (node) itemRefs.current.set(id, node)
+                        else itemRefs.current.delete(id)
+                      }}
+                    >
                       <div
-                        className={'array-item' + (destacado ? ' compare' : '') + (concluido ? ' done' : '') + (trocando ? (index === passo.indices[0] ? ' swap-left' : ' swap-right') : '')}
+                        className={'array-item' + (destacado ? ' compare' : '') + (concluido ? ' done' : '') + (trocando ? ' swapping' : '')}
                         style={{ '--item-height': Math.max(46, (valor / maior) * 230) + 'px' }}
                       >
                         <span>{valor}</span>
