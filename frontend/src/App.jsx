@@ -50,7 +50,25 @@ export default function App(){
  function reset(newValues=array){setArray([...newValues]);setInitial([...newValues]);setSteps([]);setStep(null);setIndex(0);setRunning(false);setPaused(false);setFinished(false);setComparisons(0);setMoves(0);setTime(0);setScore(0);setRivalSteps([]);setRivalIndex(0)}
  function newChallenge(){++execution.current;reset(values(size));}
  function changeSize(n){if(running)return;const v=values(n);setSize(n);reset(v)}
- function selectAlgorithm(id){++execution.current;setAlgorithm(id);if(isSort(id)){const v=values(size);reset(v)}else reset(array)}
+ async function selectAlgorithm(id){
+   ++execution.current;
+   setAlgorithm(id);
+   if(isSort(id)){
+     const v=values(size);
+     reset(v);
+     return;
+   }
+   reset(array);
+   if(isTree(id)){
+     try{
+       const res=await fetch('/api/arvores/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({valores:array})});
+       if(!res.ok)return;
+       const data=await res.json();
+       const list=Array.isArray(data.passos)?data.passos:[];
+       if(list.length){setSteps(list);apply(list[0],0);}
+     }catch{}
+   }
+ }
  function saveResult(ms){const points=Math.max(100,Math.round((10000-ms/10+500/Math.max(comparisons+moves*2,1))*difficultyInfo[1]));setScore(points);const r={algoritmo:algorithm,nome:meta[1],dificuldade,nomeDificuldade:difficultyInfo[0],pontos:points,tempo:ms,data:new Date().toISOString()};const h=[r,...history].slice(0,20),rank=[...h].sort((a,b)=>b.pontos-a.pontos).slice(0,10);setHistory(h);setRanking(rank);localStorage.setItem('arena-historico',JSON.stringify(h));localStorage.setItem('arena-ranking',JSON.stringify(rank))}
  async function start(restart=false){
    if(running&&!restart)return;
