@@ -212,7 +212,7 @@ export default function App() {
       if (evento.code === 'Space') {
         evento.preventDefault()
         if (rodando) setPausado((valor) => !valor)
-        else if (!finalizado || modo !== 'visualizador') iniciar()
+        else iniciar(finalizado)
       }
       if (evento.key === 'ArrowLeft') passoAnterior()
       if (evento.key === 'ArrowRight') proximoPasso()
