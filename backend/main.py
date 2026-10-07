@@ -238,3 +238,62 @@ def ordenar(algoritmo_id: str, request: OrdenacaoRequest):
         return {"erro": "Algoritmo não encontrado."}
     nome, funcao = ALGORITMOS[algoritmo_id]
     return {"algoritmo": nome, "passos": funcao(request.valores)}
+
+
+GRAFO = {
+    "nodes": list(range(8)),
+    "edges": [[0,1],[0,2],[1,3],[1,4],[2,4],[2,5],[3,6],[4,6],[4,7],[5,7],[6,7]],
+}
+
+def graph_passos(algoritmo_id):
+    nodes = GRAFO["nodes"]
+    edges = GRAFO["edges"]
+    adj = {n: [] for n in nodes}
+    for a, b in edges:
+        adj[a].append(b)
+        adj[b].append(a)
+    passos = []
+    visitados = []
+    fila = [0]
+    distancia = {n: float("inf") for n in nodes}
+    distancia[0] = 0
+    anterior = {}
+    heap = [(0, 0)]
+    atual = 0
+    while heap:
+        if algoritmo_id == "dfs":
+            atual = fila.pop() if fila else 0
+        else:
+            atual = fila.pop(0) if algoritmo_id == "bfs" else heap[0][1]
+            if algoritmo_id in ("dijkstra", "astar"):
+                heap.pop(0)
+        if atual in visitados:
+            continue
+        visitados.append(atual)
+        passos.append({"tipo":"visita","node":atual,"visited":visitados.copy(),"linha":3,"mensagem":f"Visitando o nó {atual}.","variaveis":{"atual":atual,"visitados":len(visitados)}})
+        for vizinho in adj[atual]:
+            if vizinho in visitados:
+                continue
+            if algoritmo_id in ("dijkstra","astar"):
+                novo = distancia[atual] + 1
+                if novo < distancia[vizinho]:
+                    distancia[vizinho] = novo
+                    anterior[vizinho] = atual
+                    score = novo + (abs(7-vizinho) if algoritmo_id == "astar" else 0)
+                    heap.append((score, vizinho))
+                    heap.sort()
+                    passos.append({"tipo":"relaxamento","node":vizinho,"visited":visitados.copy(),"linha":4,"mensagem":f"Melhor caminho encontrado até {vizinho}.","variaveis":{"atual":atual,"vizinho":vizinho,"distancia":novo}})
+            elif vizinho not in fila:
+                fila.append(vizinho)
+                passos.append({"tipo":"fila","node":vizinho,"visited":visitados.copy(),"linha":4,"mensagem":f"Nó {vizinho} entrou na fronteira de busca.","variaveis":{"atual":atual,"vizinho":vizinho}})
+        if len(visitados) == len(nodes):
+            break
+    passos.append({"tipo":"fim","node":visitados[-1] if visitados else 0,"visited":visitados.copy(),"linha":6,"mensagem":f"{algoritmo_id.upper()} concluiu a busca.","variaveis":{"visitados":len(visitados)}})
+    return {"nodes": nodes, "edges": edges, "passos": passos}
+
+
+@app.post("/api/grafos/{algoritmo_id}")
+def grafos(algoritmo_id: str):
+    if algoritmo_id not in {"bfs", "dfs", "dijkstra", "astar"}:
+        return {"erro": "Algoritmo de grafo não encontrado."}
+    return {"algoritmo": algoritmo_id.upper(), "grafo": graph_passos(algoritmo_id)}
