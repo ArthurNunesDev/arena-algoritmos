@@ -150,7 +150,10 @@ def graph_steps(kind):
             if cur==0: break
             cur=parent.get(cur,prev.get(cur))
         path.reverse()
-    final_cost = dist.get(target)\n    if final_cost == float("inf"):\n        final_cost = None\n    add("fim",target,visited.copy(),linha=6,path=path,mensagem=f"{kind.upper()} concluiu a busca.",custo=final_cost)
+    final_cost = dist.get(target)
+    if final_cost == float("inf"):
+        final_cost = None
+    add("fim",target,visited.copy(),linha=6,path=path,mensagem=f"{kind.upper()} concluiu a busca.",custo=final_cost)
     return {"nodes":nodes,"edges":edges,"passos":steps}
 
 def tree_steps(kind, values):
