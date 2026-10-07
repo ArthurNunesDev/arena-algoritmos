@@ -154,7 +154,8 @@ export default function App() {
     String(Math.floor((tempo % 1000) / 10)).padStart(2, '0')
 
   const algoritmoAtual = algoritmos.find((item) => item.id === algoritmo)
-  const eventoAtual = passo?.tipo === 'troca' ? 'Troca de elementos' : passo?.tipo === 'comparacao' ? 'Comparando elementos' : 'Pronto para começar'
+  const linhaAtiva = passo?.linha ?? 0
+  const eventoAtual = passo?.mensagem || 'Execute o algoritmo para acompanhar cada etapa.'
 
   return (
     <main className="app-shell">
@@ -255,17 +256,17 @@ export default function App() {
             <div className="info-grid">
               <section className="info-panel explanation">
                 <div className="panel-title">Explicação</div>
-                <h2>{eventoAtual}</h2>
-                <p>{passo?.tipo === 'troca'
-                  ? 'Como os elementos estavam fora de ordem, o algoritmo troca suas posições para aproximar o array da ordenação final.'
-                  : passo?.tipo === 'comparacao'
-                    ? 'O Bubble Sort percorre elementos vizinhos e verifica se o primeiro é maior que o segundo.'
-                    : 'O algoritmo será executado passo a passo para mostrar não apenas o resultado, mas como ele é construído.'}</p>
+                <h2>{passo?.tipo === 'troca' ? 'Troca' : passo?.tipo === 'comparacao' ? 'Comparação' : 'Execução'}</h2>
+                <p>{eventoAtual}</p>
               </section>
 
               <section className="info-panel variables">
                 <div className="panel-title">Estado</div>
                 <div className="state-list">
+                  <div><span>fim</span><strong>{passo?.variaveis?.fim ?? '-'}</strong></div>
+                  <div><span>i</span><strong>{passo?.variaveis?.i ?? '-'}</strong></div>
+                  <div><span>esquerda</span><strong>{passo?.variaveis?.esquerda ?? '-'}</strong></div>
+                  <div><span>direita</span><strong>{passo?.variaveis?.direita ?? '-'}</strong></div>
                   <div><span>comparações</span><strong>{comparacoes}</strong></div>
                   <div><span>movimentos</span><strong>{movimentos}</strong></div>
                   <div><span>tempo</span><strong>{tempoFormatado}</strong></div>
@@ -284,7 +285,7 @@ export default function App() {
               <span className="language">JavaScript</span>
             </div>
             <pre>{bubbleCode.map((linha, index) => (
-              <code className={'code-line' + (passo && ((passo.tipo === 'comparacao' && index === 2) || (passo.tipo === 'troca' && index === 3)) ? ' active' : '')} key={index}>
+              <code className={'code-line' + (linhaAtiva === index + 1 ? ' active' : '')} key={index}>
                 <span>{String(index + 1).padStart(2, '0')}</span>{linha}
               </code>
             ))}</pre>
