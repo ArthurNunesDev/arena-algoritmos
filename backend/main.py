@@ -215,7 +215,7 @@ def tree_steps(kind, values):
                 if heap[p]>=heap[i]: break
                 heap[p],heap[i]=heap[i],heap[p]; i=p
                 add("troca",i,4,f"{value} subiu no Max Heap.",valor=value)
-        add("heap",0,"Max Heap construído.",tamanho=len(heap),raiz=heap[0] if heap else None)
+        add("heap",0,4,"Max Heap construído.",tamanho=len(heap),raiz=heap[0] if heap else None)
         return {"nodes":heap,"passos":steps}
     def visit(n):
         if n is None:return
