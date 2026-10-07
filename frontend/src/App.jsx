@@ -78,11 +78,13 @@ export default function App(){
    if(restart)reset(source);
    try{
     const needsBody=isSort(algorithm)||isTree(algorithm);
-    const mainRes=await fetch(apiFor(algorithm),{
-      method:'POST',
-      headers:needsBody?{'Content-Type':'application/json'}:undefined,
-      body:needsBody?JSON.stringify({valores:source}):undefined
-    });
+    const mainRes=needsBody
+      ? await fetch(apiFor(algorithm),{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({valores:source})
+        })
+      : await fetch(apiFor(algorithm));
     if(!mainRes.ok||token!==execution.current)throw new Error('request');
     const data=await mainRes.json();
     if(token!==execution.current)return;
