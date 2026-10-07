@@ -55,6 +55,11 @@ h1 { margin:5px 0 0; font:700 clamp(25px,3vw,38px)/1.1 'Space Grotesk',sans-seri
 .shortcut-hint { display:flex; justify-content:flex-end; gap:12px; padding:5px 0 3px; color:#596476; font-size:9px; }
 kbd { display:inline-block; min-width:18px; margin:0 2px; padding:2px 5px; border:1px solid #252d3a; border-radius:4px; background:#11161e; color:#8993a3; font:9px 'SFMono-Regular',Consolas,monospace; text-align:center; }
 
+.array-settings { display:flex; justify-content:flex-end; padding:10px 0 0; }
+.array-settings label { display:flex; align-items:center; gap:10px; color:#737d8d; font-size:10px; }
+.array-settings input { width:130px; accent-color:#7667ff; cursor:pointer; }
+.array-settings strong { min-width:20px; color:#dbe1ea; font-size:11px; text-align:right; }
+
 .playback { display:flex; align-items:center; justify-content:center; gap:7px; padding:13px 0; border-bottom:1px solid #1d2430; }
 .playback button { min-width:34px; height:34px; border:1px solid #252d3a; border-radius:8px; background:#11161e; color:#dbe1ea; cursor:pointer; }
 .playback .play { width:44px; background:#7667ff; border-color:#7667ff; font-weight:800; }
