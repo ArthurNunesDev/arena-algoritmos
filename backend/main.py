@@ -19,9 +19,11 @@ class OrdenacaoRequest(BaseModel):
 
 def bubble_sort_passos(valores: list[int]):
     array = valores.copy()
+    ids = list(range(len(array)))
     passos = [{
         "tipo": "inicio",
         "valores": array.copy(),
+        "ids": ids.copy(),
         "linha": 1,
         "mensagem": "O array está pronto. Vamos iniciar o Bubble Sort.",
         "variaveis": {"fim": len(array) - 1, "i": 0},
@@ -37,6 +39,7 @@ def bubble_sort_passos(valores: list[int]):
                 "tipo": "comparacao",
                 "indices": [i, i + 1],
                 "valores": array.copy(),
+                "ids": ids.copy(),
                 "comparacoes": comparacoes,
                 "movimentos": movimentos,
                 "linha": 3,
@@ -46,12 +49,14 @@ def bubble_sort_passos(valores: list[int]):
 
             if array[i] > array[i + 1]:
                 array[i], array[i + 1] = array[i + 1], array[i]
+                ids[i], ids[i + 1] = ids[i + 1], ids[i]
                 movimentos += 1
                 trocou = True
                 passos.append({
                     "tipo": "troca",
                     "indices": [i, i + 1],
                     "valores": array.copy(),
+                    "ids": ids.copy(),
                     "comparacoes": comparacoes,
                     "movimentos": movimentos,
                     "linha": 4,
@@ -65,6 +70,7 @@ def bubble_sort_passos(valores: list[int]):
     passos.append({
         "tipo": "fim",
         "valores": array.copy(),
+        "ids": ids.copy(),
         "comparacoes": comparacoes,
         "movimentos": movimentos,
         "linha": 7,
