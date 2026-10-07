@@ -145,7 +145,7 @@ def graph_steps(kind):
         target=7
     path=[]; cur=target
     if cur in visited or target in prev:
-        while cur in prev or cur==0:
+        while cur in prev or cur in parent or cur==0:
             path.append(cur)
             if cur==0: break
             cur=parent.get(cur,prev.get(cur))
