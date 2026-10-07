@@ -377,7 +377,7 @@ export default function App() {
 
           <div className="timeline"><div className="timeline-meta"><span>Timeline</span><span>{passosAtuais}</span></div><input type="range" min="0" max={Math.max(passos.length - 1,0)} value={passos.length ? indice : 0} onChange={(e) => { if (!passos.length) return; const i=Number(e.target.value); aplicarPasso(passos[i],i); const fim=i===passos.length-1; setFinalizado(fim); if(fim){setRodando(false);setPausado(false)} }} disabled={!passos.length || rodando && !pausado} /></div>
 
-          {!eGrafo && <div className="array-settings"><label>Tamanho do array <input type="range" min="6" max="20" value={tamanho} onChange={(e) => setTamanho(Number(e.target.value))} disabled={rodando} /><strong>{tamanho}</strong></label></div>}
+          {!eGrafo && <div className="array-settings"><label>Tamanho do array <input type="range" min="6" max="20" value={tamanho} onChange={(e) => alterarTamanho(Number(e.target.value))} disabled={rodando} /><strong>{tamanho}</strong></label></div>}
 
           <div className="playback">
             <button onClick={() => { if(passos.length && !rodando) aplicarPasso(passos[0],0) }} disabled={!passos.length || rodando}>⏮</button>
