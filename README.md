@@ -4,7 +4,7 @@ Um jogo educativo e visual para transformar algoritmos e estruturas de dados em 
 
 ## 🌐 Acesse
 
-**[Jogar Arena de Algoritmos](https://arthurnunesdev.github.io/arena-algoritmos/)**
+**[Jogar Arena de Algoritmos](https://arena-algoritmos.vercel.app/)**
 
 ## Arenas
 
