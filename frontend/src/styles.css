@@ -36,17 +36,14 @@ h1 { margin:5px 0 0; font:700 clamp(25px,3vw,38px)/1.1 'Space Grotesk',sans-seri
 .visualizer { min-height:440px; display:flex; flex-direction:column; justify-content:space-between; padding:20px; border:1px solid #1d2430; border-radius:14px; background:#0d1118; }
 .visualizer-status { display:flex; justify-content:space-between; color:#737d8d; font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
 .array { min-height:290px; display:flex; align-items:end; justify-content:center; gap:clamp(7px,1.2vw,15px); padding:25px 5px; }
-.array-item-wrapper { flex:1; max-width:68px; min-width:18px; display:flex; flex-direction:column; align-items:center; gap:8px; }
-.array-item { width:100%; height:var(--item-height); min-height:46px; display:flex; align-items:center; justify-content:center; border:1px solid #303a4b; border-radius:8px 8px 5px 5px; background:#171e29; transition:transform .3s ease,height .3s ease,filter .3s ease,box-shadow .3s ease,border-color .3s ease; will-change:transform; }
+.array-item-wrapper { flex:1; max-width:68px; min-width:18px; display:flex; flex-direction:column; align-items:center; gap:8px; will-change:transform; }
+.array-item { width:100%; height:var(--item-height); min-height:46px; display:flex; align-items:center; justify-content:center; border:1px solid #303a4b; border-radius:8px 8px 5px 5px; background:#171e29; transition:height .3s ease,filter .3s ease,box-shadow .3s ease,border-color .3s ease; }
 .array-item span { font-size:13px; font-weight:800; }
 .array-item-wrapper > small { color:#596476; font-size:9px; }
 .array-item.compare { transform:translateY(-13px) scale(1.04); border-color:#8d7cff; box-shadow:0 0 25px rgba(118,103,255,.3); filter:brightness(1.25); }
 .array-item.done { border-color:#4b9b70; }
 .operation-message { min-height:32px; display:grid; place-items:center; color:#aeb7c6; font-size:12px; }
 .array-item.swapping { border-color:#a18fff; box-shadow:0 0 30px rgba(118,103,255,.38); }
-.array-item-wrapper { will-change:transform; }
-.array-item { will-change:transform; }
-
 
 .timeline { padding:13px 0 4px; }
 .timeline-meta { display:flex; justify-content:space-between; margin-bottom:7px; color:#596476; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
