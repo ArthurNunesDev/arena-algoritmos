@@ -264,6 +264,25 @@ export default function App() {
     setPontuacao(0)
   }
 
+  function alterarTamanho(novoTamanho) {
+    if (rodando) return
+    ++execucaoRef.current
+    const novos = gerarValores(novoTamanho, dificuldade)
+    valoresIniciaisRef.current = [...novos]
+    setTamanho(novoTamanho)
+    setValores(novos)
+    setPassos([])
+    setPasso(null)
+    setIndice(0)
+    setFinalizado(false)
+    setPausado(false)
+    setComparacoes(0)
+    setMovimentos(0)
+    setTempo(0)
+    setPontuacao(0)
+    setRaceInfo(null)
+  }
+
   function selecionarAlgoritmo(id) {
     ++execucaoRef.current
     setRodando(false)
