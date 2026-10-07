@@ -100,7 +100,21 @@ export default function App() {
     localStorage.setItem('arena-ranking', JSON.stringify(novoRanking))
   }
 
-  async function iniciar() {
+  async function iniciar(reiniciar = false) {
+    if (rodando && !reiniciar) return
+
+    if (reiniciar) {
+      setPassos([])
+      setPasso(null)
+      setIndice(0)
+      setFinalizado(false)
+      setPausado(false)
+      setComparacoes(0)
+      setMovimentos(0)
+      setTempo(0)
+      setPontuacao(0)
+    }
+
     if (modo === 'race' && !eGrafo) {
       const rivalResposta = await fetch('/api/ordenacao/' + rival, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valores }) })
       if (!rivalResposta.ok) return
@@ -110,7 +124,7 @@ export default function App() {
     } else {
       setRaceInfo(null)
     }
-    if (rodando || finalizado && modo === 'visualizador') return
+    if (rodando && !reiniciar) return
     if (eGrafo) {
       const resposta = await fetch('/api/grafos/' + algoritmo, { method: 'POST' })
       if (!resposta.ok) return
@@ -327,7 +341,13 @@ export default function App() {
           <div className="playback">
             <button onClick={() => { if(passos.length && !rodando) aplicarPasso(passos[0],0) }} disabled={!passos.length || rodando}>⏮</button>
             <button onClick={passoAnterior} disabled={!passos.length || indice===0 || rodando && !pausado}>◀</button>
-            <button className="play" onClick={() => rodando ? setPausado(v=>!v) : iniciar()} disabled={finalizado && !rodando}>{rodando ? (pausado ? '▶' : 'Ⅱ') : '▶'}</button>
+            <button className="play" onClick={() => {
+              if (rodando) {
+                setPausado((valor) => !valor)
+                return
+              }
+              iniciar(finalizado)
+            }}>{rodando ? (pausado ? '▶' : 'Ⅱ') : '▶'}</button>
             <button onClick={proximoPasso} disabled={!passos.length || indice>=passos.length-1 || rodando && !pausado}>▶</button>
             <button onClick={() => { if(passos.length && !rodando){ aplicarPasso(passos[passos.length-1],passos.length-1); setFinalizado(true) } }} disabled={!passos.length || rodando}>⏭</button>
             <label>Velocidade <select value={velocidade} onChange={(e)=>setVelocidade(Number(e.target.value))} disabled={rodando && !pausado}><option value="0.5">0.5x</option><option value="1">1x</option><option value="2">2x</option><option value="4">4x</option></select></label>
