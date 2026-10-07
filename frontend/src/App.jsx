@@ -15,10 +15,6 @@ function gerarValores(tamanho = 12) {
   return Array.from({ length: tamanho }, () => Math.floor(Math.random() * 90) + 10)
 }
 
-function esperar(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 const bubbleCode = [
   'for (let fim = n - 1; fim > 0; fim--) {',
   '  for (let i = 0; i < fim; i++) {',
@@ -48,14 +44,6 @@ export default function App() {
   const previousRectsRef = useRef(new Map())
 
   const maior = useMemo(() => Math.max(...valores), [valores])
-
-  useEffect(() => {
-    if (!rodando || pausado) return
-    const interval = setInterval(() => {
-      setTempo(Date.now() - inicioRef.current)
-    }, 10)
-    return () => clearInterval(interval)
-  }, [rodando, pausado])
 
   function aplicarPasso(evento, indice) {
     setPasso(evento)
@@ -110,7 +98,6 @@ export default function App() {
 
     return () => window.clearTimeout(timer)
   }, [rodando, pausado, passos, indicePasso, velocidade])
-
   useEffect(() => {
     if (!rodando || pausado || !inicioRef.current) return undefined
     const interval = window.setInterval(() => setTempo(Date.now() - inicioRef.current), 10)
